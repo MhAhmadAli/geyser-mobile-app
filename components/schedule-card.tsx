@@ -186,7 +186,7 @@ function ScheduleForm({
 
 /* ---------- Schedule Card ---------- */
 export default function ScheduleCard({ apiBaseUrl }: { apiBaseUrl: string }) {
-  const { schedules, loading, createSchedule, updateSchedule, deleteSchedule, toggleSchedule, refetch } =
+  const { schedules, loading, createSchedule, updateSchedule, refetch } =
     useSchedules({ apiBaseUrl });
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -228,13 +228,6 @@ export default function ScheduleCard({ apiBaseUrl }: { apiBaseUrl: string }) {
       console.warn(e);
       Alert.alert("Error", "Failed to save schedule");
     }
-  };
-
-  const confirmDelete = (id: Schedule["id"]) => {
-    Alert.alert("Delete", "Delete this schedule?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: () => deleteSchedule(id) },
-    ]);
   };
 
   return (
