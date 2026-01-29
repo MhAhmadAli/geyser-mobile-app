@@ -220,6 +220,7 @@ export default function ScheduleCard({ apiBaseUrl }: { apiBaseUrl: string }) {
       if (editing && editing.id !== "new") {
         await updateSchedule(editing.id, val);
       } else {
+        console.log("Creating schedule", val);
         await createSchedule(val);
       }
       setModalVisible(false);

@@ -7,8 +7,8 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-const char* ssid = "Ahmad2.4G";
-const char* password = "App.Store123";
+const char* ssid = "Hamzah";
+const char* password = "1112131415";
 
 #define TEMP_SENSOR_PIN 4
 #define GAS_SENSOR_PIN A0
@@ -80,7 +80,11 @@ void handleManual() {
   if (cmd == "GAS_ON") digitalWrite(RELAY_GAS_VALVE, HIGH);
   if (cmd == "GAS_OFF") digitalWrite(RELAY_GAS_VALVE, LOW);
 
-  if (cmd == "IGN_ON") digitalWrite(RELAY_IGNITION, HIGH);
+  if (cmd == "IGN_ON") {
+    digitalWrite(RELAY_IGNITION, HIGH);
+    delay(2000);
+    digitalWrite(RELAY_IGNITION, LOW);
+  };
   if (cmd == "IGN_OFF") digitalWrite(RELAY_IGNITION, LOW);
 
   if (cmd == "PUMP_ON") digitalWrite(PUMP_PIN, HIGH);
@@ -385,15 +389,39 @@ void autoLogic() {
 
 // -------------------------------------------------------
 
+// Set your Static IP address
+IPAddress local_IP(172, 20, 10, 6);
+// Set your Gateway IP address
+IPAddress gateway(172, 20, 10, 1);
+
+IPAddress subnet(255, 255, 0, 0);
+IPAddress primaryDNS(8, 8, 8, 8);    //optional
+IPAddress secondaryDNS(8, 8, 4, 4);  //optional
+
 void setup() {
   Serial.begin(115200);
   sensors.begin();
   LittleFS.begin();
 
+  pinMode(RELAY_ELECTRIC, OUTPUT);
+  pinMode(RELAY_GAS_VALVE, OUTPUT);
+  pinMode(RELAY_IGNITION, OUTPUT);
+  pinMode(PUMP_PIN, OUTPUT);
+
+  turnAllOff();
+
+  // Configures static IP address
+  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+    Serial.println("STA Failed to configure");
+  }
+
   WiFi.begin(ssid, password);
+  Serial.print("\nConnecting Wifi ");
   while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
     delay(100);
   }
+  Serial.println();
   Serial.println(WiFi.localIP());
 
   MDNS.begin("smartgeyser");
@@ -402,13 +430,6 @@ void setup() {
   while (time(nullptr) < 100000) delay(100);
 
   loadSchedule();
-
-  pinMode(RELAY_ELECTRIC, OUTPUT);
-  pinMode(RELAY_GAS_VALVE, OUTPUT);
-  pinMode(RELAY_IGNITION, OUTPUT);
-  pinMode(PUMP_PIN, OUTPUT);
-
-  turnAllOff();
 
   // --- ROUTES ---
   server.on("/manual", HTTP_GET, handleManual);

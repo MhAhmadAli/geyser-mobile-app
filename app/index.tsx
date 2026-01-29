@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 // import your native schedule component
 import ScheduleCard from "@/components/schedule-card"; // <-- React Native version
 
-const BASE_URL = "http://smartgeyser.local";
+const BASE_URL = "http://172.20.10.6";
 
 export default function HomeScreen() {
   const [temp, setTemp] = useState("--");
@@ -23,9 +23,11 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const interval = setInterval(() => {
+      console.log("Fetching status...");
       fetch(`${BASE_URL}/status`)
         .then((res) => res.json())
         .then((data) => {
+          console.log("Status data:", data);
           setTemp(data.temp);
           setGas(data.gas);
           setElec(data.electric ? "ON" : "OFF");
@@ -33,14 +35,16 @@ export default function HomeScreen() {
           setIgn(data.ignition ? "ON" : "OFF");
           setPump(data.pump ? "ON" : "OFF");
         })
-        .catch(() => { });
+        .catch((err) => {
+          console.warn("Status fetch failed:", err?.message || err);
+        });
     }, 3000);
 
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <ScrollView style={styles.body}>
+    <ScrollView contentContainerStyle={styles.body}>
       <Text style={styles.title}>Smart Geyser Control</Text>
 
       {/* Sensor Status */}
@@ -124,7 +128,7 @@ const controlRow = (on: any, off: any, onText: string, offText: string) => (
 );
 
 const styles = StyleSheet.create({
-  body: { backgroundColor: "#f5f5f5", padding: 20 },
+  body: { flexGrow: 1, backgroundColor: "#f5f5f5", padding: 20 },
   title: { fontSize: 26, fontWeight: "bold", marginBottom: 10 },
 
   card: {
@@ -152,7 +156,7 @@ const styles = StyleSheet.create({
   onBtn: {
     padding: 12,
     width: "45%",
-    backgroundColor: "#28a745",
+    backgroundColor: "#28a73fff",
     borderRadius: 8,
     marginVertical: 5,
   },
@@ -166,7 +170,7 @@ const styles = StyleSheet.create({
   },
   modeBtn: {
     padding: 12,
-    backgroundColor: "#007bff",
+    backgroundColor: "#0048ffff",
     borderRadius: 8,
     marginVertical: 5,
     width: "90%",
